@@ -8,28 +8,39 @@ import geopandas
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import make_classification
+from sklearn.metrics import confusion_matrix
+
+def x_y_train_test_psm(data, test_size):
+    train, test = split_plant_functional_types_full(data, test_size)
+    x_train = train[train.columns[3]]
+    y_train = train[train.columns[2]]
+
+    x_test = test[test.columns[3]]
+    y_test = test[test.columns[2]]
+
+    return x_train, y_train, x_test, y_test
 
 
 
-def random_forest(data_csv, test_size, max_depth, random_state=42, cv=3):
-    x_train, y_train, x_test, y_test = x_and_y_train_test(data_csv, test_size)
-    clf = RandomForestClassifier(max_depth=max_depth, random_state=random_state)
-    clf.fit(x_train, y_train)
-    clf_train_pred = clf.predict(x_train)
-    clf_pred = clf.predict(x_test)
-    scores = cross_val_score(clf, x_train, y_train, cv=cv)
-    test_score = cross_val_score(clf, x_test, y_test, cv=cv)
-    return "%0.2f accuracy with a standard deviation of %0.2f" % (test_score.mean(), test_score.std())
+def x_and_y_train_test(data, test_size, x_start=1, x_end=359, y=359):
+    train, test = split_plant_functional_types_full(data, test_size)
 
+    x_train = train[train.columns[x_start:x_end]]
+    y_train = train[train.columns[y]]
 
-def x_and_y_train_test(data_csv, test_size):
-    train, test = split_plant_functional_types(data_csv, test_size)
+    x_test = test[test.columns[x_start:x_end]]
+    y_test = test[test.columns[y]]
 
-    x_train = train[train.columns[1:359]]
-    y_train = train[train.columns[359]]
+    return x_train, y_train, x_test, y_test
 
-    x_test = test[test.columns[1:359]]
-    y_test = test[test.columns[359]]
+def x_and_y_train_test_sections(data_csv, test_size, x_start, x_end, y):
+    train, test = split_plant_functional_types_sections(data_csv, test_size)
+
+    x_train = train[train.columns[x_start:x_end]]
+    y_train = train[train.columns[y]]
+
+    x_test = test[test.columns[x_start:x_end]]
+    y_test = test[test.columns[y]]
 
     return x_train, y_train, x_test, y_test
 
@@ -47,54 +58,45 @@ def train_geo_frame(geo_data_frame, type, test_size):
     return train_test_split(geo_data_frame[geo_data_frame['PFT'].str.contains(type)], test_size=test_size)
 
 
-def split_plant_functional_types(data_csv, test_size):
-    data_frame = data_import(data_csv)
+def split_plant_functional_types_full(data_frame, test_size):
     train_shrub_sphagnum, test_shrub_sphagnum = train_test_split(
         data_frame[data_frame['PFT'].str.contains('shrub_sphagnum')], test_size=test_size)
     train_water, test_water = train_test_split(data_frame[data_frame['PFT'].str.contains('water')],
                                                test_size=test_size)
-    train_sphagnum_r, test_sphagnum_r = train_test_split(
-        data_frame[data_frame['PFT'].str.contains('spahgnum_r')], test_size=test_size)
+    train_grass_sphagnum, test_grass_sphagnum = train_test_split(
+        data_frame[data_frame['PFT'].str.contains('grass_sphagnum')], test_size=test_size)
     train_pool_bogbean, test_pool_bogbean = train_test_split(
         data_frame[data_frame['PFT'].str.contains('pool_bogbean')], test_size=test_size)
-    train_calluna_mix, test_calluna_mix = train_test_split(
-        data_frame[data_frame['PFT'].str.contains('calluna_mix')], test_size=test_size)
-    train_rushes_sedges, test_rushes_sedges = train_test_split(
-        data_frame[data_frame['PFT'].str.contains('rushes_sedges')], test_size=test_size)
+    train_calluna, test_calluna = train_test_split(
+        data_frame[data_frame['PFT'].str.contains('calluna')], test_size=test_size)
+    train_rushes, test_rushes = train_test_split(
+        data_frame[data_frame['PFT'].str.contains('rushes')], test_size=test_size)
+    train_long_grass, test_long_grass = train_test_split(
+        data_frame[data_frame['PFT'].str.contains('long_grass')], test_size=test_size)
+    train_short_grass, test_short_grass = train_test_split(
+        data_frame[data_frame['PFT'].str.contains('short_grass')], test_size=test_size)
+    train_brash, test_brash = train_test_split(
+        data_frame[data_frame['PFT'].str.contains('brash')], test_size=test_size)
+    train_dead_grass_mix, test_dead_grass_mix = train_test_split(
+        data_frame[data_frame['PFT'].str.contains('dead_grass_mix')], test_size=test_size)
+    train_bare, test_bare = train_test_split(
+        data_frame[data_frame['PFT'].str.contains('bare')], test_size=test_size)
+    train_sitka_pine, test_sitka_pine = train_test_split(
+        data_frame[data_frame['PFT'].str.contains('sitka_pine')], test_size=test_size)
+    train_agri_grasses, test_agri_grasses = train_test_split(
+        data_frame[data_frame['PFT'].str.contains('agri_grasses')], test_size=test_size)
 
-    train_frames = [train_shrub_sphagnum, train_water, train_sphagnum_r, train_pool_bogbean, train_calluna_mix,
-                    train_rushes_sedges]
-    test_frames = [test_shrub_sphagnum, test_water, test_sphagnum_r, test_pool_bogbean, test_calluna_mix,
-                   test_rushes_sedges]
+
+    train_frames = [train_shrub_sphagnum, train_water, train_grass_sphagnum, train_pool_bogbean, train_calluna,
+                    train_rushes, train_long_grass, train_short_grass, train_brash, train_dead_grass_mix, train_bare, train_sitka_pine, train_agri_grasses]
+    test_frames = [test_shrub_sphagnum, test_water, test_grass_sphagnum, test_pool_bogbean, test_calluna,
+                   test_rushes, test_long_grass, test_short_grass, test_brash, test_dead_grass_mix, test_bare, test_sitka_pine, test_agri_grasses]
 
     train_plant_functional_types = pd.concat(train_frames)
     test_plant_functional_types = pd.concat(test_frames)
     return train_plant_functional_types, test_plant_functional_types
 
-# def split_plant_functional_types(csv, test_size):
-#     data_frame = pd.read_csv(csv)
-#     train_plant_functional_types = []
-#     test_plant_functional_types = []
-#     train_PFT = []
-#     test_PFT = []
-#
-#     plant_functional_types = ['shrub_sphagnum', 'water', 'spahgnum_r', 'pool_bogbean', 'calluna_mix', 'rushes_sedges']
-#     for plant_functional_type in plant_functional_types:
-#         train_PFT[plant_functional_type], test_PFT[plant_functional_type] = train_test_split(data_frame[data_frame['PFT'].str.contains(plant_functional_type)], test_size=test_size)
-#         train_plant_functional_types.append(train_PFT)
-#         test_plant_functional_types.append(test_PFT)
-#     return train_plant_functional_types, test_plant_functional_types
 
-# def split_plant_functional_types(csv, test_size):
-#     data_frame = pd.read_csv(csv)
-#     train_plant_functional_types = {}
-#     test_plant_functional_types = {}
-#
-#     plant_functional_types = ['shrub_sphagnum', 'water', 'spahgnum_r', 'pool_bogbean', 'calluna_mix', 'rushes_sedges']
-#     for plant_functional_type in plant_functional_types:
-#         train_plant_functional_types[plant_functional_type], test_plant_functional_types[plant_functional_type] = train_test_split(data_frame[data_frame['PFT'].str.contains(plant_functional_type)], test_size=test_size)
-#
-#     return train_plant_functional_types, test_plant_functional_types
 
 def data_import(data_csv):
     data = pd.read_csv(data_csv)
