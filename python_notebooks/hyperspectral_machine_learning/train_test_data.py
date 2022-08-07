@@ -92,6 +92,10 @@ def split_plant_functional_types_full(data_frame, test_size):
     test_frames = [test_shrub_sphagnum, test_water, test_grass_sphagnum, test_pool_bogbean, test_calluna,
                    test_rushes, test_long_grass, test_short_grass, test_brash, test_dead_grass_mix, test_bare, test_sitka_pine, test_agri_grasses]
 
+    # train_frames = [train_shrub_sphagnum, train_water, train_grass_sphagnum, train_pool_bogbean, train_rushes, train_long_grass, train_short_grass, train_brash, train_dead_grass_mix, train_bare]
+    # test_frames = [test_shrub_sphagnum, test_water, test_grass_sphagnum, test_pool_bogbean,
+    #                test_rushes, test_long_grass, test_short_grass, test_brash, test_dead_grass_mix, test_bare]
+
     train_plant_functional_types = pd.concat(train_frames)
     test_plant_functional_types = pd.concat(test_frames)
     return train_plant_functional_types, test_plant_functional_types

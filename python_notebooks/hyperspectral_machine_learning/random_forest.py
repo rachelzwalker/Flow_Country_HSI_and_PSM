@@ -33,6 +33,8 @@ def random_forest_csv_and_shape_file_outputs(site_name, data_transformations, te
     top_results_to_convert = _random_forest_predictions_to_output(predictions_view)
 
     formatted_date = date.today().strftime('%Y-%m-%d-%H%M%S')
+    top_results_to_convert.to_csv(f"{output_directory}/{site_name}-{test_size}-{max_depth}-{formatted_date}.csv")
+
     for index, row in top_results_to_convert.iterrows():
         row['model_result'].to_csv(f"{output_directory}/{site_name}-{row['data_transformation']}-{row['spectrum']}-{formatted_date}.csv")
         row['model_result'].to_file(f"{output_directory}/{site_name}-{row['data_transformation']}-{row['spectrum']}-{formatted_date}.shp")
