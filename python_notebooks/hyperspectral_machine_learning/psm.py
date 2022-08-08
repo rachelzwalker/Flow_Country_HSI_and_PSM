@@ -5,6 +5,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.cluster import KMeans
 import scipy.stats
 import numpy as np
+import collections
 
 from train_test_data import data_import, x_y_train_test_psm
 
@@ -15,6 +16,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 from datetime import date
+import random
+
 
 # def sub_section_outputs
 
@@ -41,7 +44,7 @@ def outputs(joined_data_csv, test_size, max_depth, kernel='rbf', num_clusters=10
 
     full_data_kmc = data[data.columns[3]].values.reshape(-1, 1)
     kmc_description = kmc(full_data_kmc, data_with_pft, num_clusters, output_directory, site_name)
-
+    # make results into dictionary
     return ('logistic regression: ' + str(logistic_regression_score)), (
             'random_forest_score, mean and sd: ' + str(rf_test_score)), (
                    'decision_tree_score: ' + str(decision_tree_score)), ('svm: ' + str(svm_score)), (
@@ -140,54 +143,81 @@ def logistic_regression(data):
 
 
 def similarity_measures_velocity_pfts(joined_data_csv):
+    dfs_dict = df_for_similarity_measures_velocity_pfts(joined_data_csv)
+    regressions = []
+    # list_1 = comparision_df[0]
+    # list_2 = comparision_df[1]
+    # regression = scipy.stats.pearsonr(list_1, list_2)
+    # regressions.append(regression)
+
+    # for pft in pfts:
+    #     list_1 = comparision_df[pft]
+    #     list_2 = comparision_df[pft+1]
+    #     regression = scipy.stats.pearsonr(list_1, list_2)
+    #     regressions.append(regression)
+
+    for df in dfs_dict.values():
+        corr = df.corr()
+        fig, ax = plt.subplots()
+        sns.heatmap(corr, cmap="Blues", annot=True, ax=ax)
+        # regressions.append(heatmap)
+
+    # return regressions
+
+
+def df_for_similarity_measures_velocity_pfts(joined_data_csv):
     histogram_data, descriptive_df = data_descriptions(joined_data_csv)
-    pfts = histogram_data.keys()
-    df = pd.DataFrame()
+    pft_to_number_of_velocities = pft_to_number_velocities_dict(joined_data_csv)
 
-    for pft, values in histogram_data.items():
-        pft_df = pd.DataFrame()
-        velocity = []
-        for value in values:
-            velocity.append(value)
-        pft_df[pft] = velocity
-        df = pd.concat([df, pft_df], ignore_index=True, axis=1)
+    df_dict = {}
 
-    df.columns = pfts
-    return df
+    pfts_to_ignore = []
+
+    sorted_dict = collections.OrderedDict(sorted(pft_to_number_of_velocities.items(), key=lambda x:x[1]))
+    for pft_name, length in sorted_dict.items():
+        comparison_df = pd.DataFrame()
+        for pft, velocities in histogram_data.items():
+            if pft in pfts_to_ignore:
+                continue
+
+            comparison_df[pft] = random.sample(velocities, k=length)
 
 
+        df_dict[pft_name] = comparison_df
+        pfts_to_ignore.append(pft_name)
 
-def find_max_list(joined_data_csv):
+    return df_dict
+
+
+# def different_sized_dataframes(joined_data_csv):
+#     sorted_list_lengths = sorted_list(joined_data_csv)
+#     histogram_data, descriptive_df = data_descriptions(joined_data_csv)
+#     pfts = histogram_data.keys()
+#     df_dict = {}
+#
+#     for
+
+
+def pft_to_number_velocities_dict(joined_data_csv):
     histogram_data, descriptive_df = data_descriptions(joined_data_csv)
-    list_lengths = []
+    pft_to_number_of_velocities = {}
     for pft, values in histogram_data.items():
         velocity = []
         for value in values:
             velocity.append(value)
         len_list = len(velocity)
-        list_lengths.append(len_list) #returning length of the string name rather than the number of floats
-
-    return max(list_lengths)
-
-# def similarity_measures_velocity_pfts(joined_data_csv):
-#     histogram_data, descriptive_df = data_descriptions(joined_data_csv)
-#     list_of_tuples = [(pft,velocity) for pft,velocity in dict.items(histogram_data)]
-#     list_of_lists = [list(x) for x in list_of_tuples]
-#     regressions = []
-#
-#     # return to and look at alternatives for extracting data from a dictionary/comparing values across a dictionary
-#
-#     for pft in range(10):
-#         list_1_unsplit = list_of_lists[pft]
-#
-#         list_2 = list_of_lists[pft+1]
-#         # regression = scipy.stats.pearsonr(list_1, list_2)
-#         # regressions.append(regression)
-#
-#     return list_1[1]
+        pft_to_number_of_velocities[pft] = len_list
+    # sorted_dictionary = collections.OrderedDict(sorted(pft_to_number_of_velocities.items()))
 
 
-def data_descriptions(joined_data_csv):
+    # pft_list_lengths_zipping = zip(pft, len_list)
+    # pft_list_lengths = list(pft_list_lengths_zipping)
+
+    # return type(sorted_dictionary) # type comes out as a collection rather than a dictionary
+    return pft_to_number_of_velocities
+
+
+def data_descriptions(joined_data_csv, data_field_title='Velocity'):
     data = data_import(joined_data_csv)
     pfts = data['PFT'].unique()
     descriptive_stats = {}
@@ -195,19 +225,17 @@ def data_descriptions(joined_data_csv):
     histogram_data = {}
 
     for pft in pfts:
-        velocity = data.loc[data['PFT'] == pft, 'Velocity']
-        velocity_list = velocity.to_numpy('float').tolist()
-        mean = statistics.mean(velocity)
-        variance = statistics.variance(velocity)
-        stdev = statistics.stdev(velocity)
+        data_field = data.loc[data['PFT'] == pft, data_field_title].to_numpy('float').tolist()
+        mean = statistics.mean(data_field)
+        variance = statistics.variance(data_field)
+        stdev = statistics.stdev(data_field)
 
         descriptive_stats[pft] = {'mean': mean, 'variance': variance, 'standard_deviation': stdev}
         fig, ax = plt.subplots()
-        histogram = sns.histplot(data=velocity, ax=ax).set(title=pft)
+        histogram = sns.histplot(data=data_field, ax=ax).set(title=pft)
         histograms.append(histogram)
 
-        histogram_data.update({pft: velocity_list})
-
+        histogram_data.update({pft: data_field})
 
     descriptive_df = pd.DataFrame.from_dict(descriptive_stats)
 
