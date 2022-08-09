@@ -10,6 +10,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import make_classification
 from sklearn.metrics import confusion_matrix
 
+
 def x_y_train_test_psm(data, test_size):
     train, test = split_plant_functional_types_full(data, test_size)
     x_train = train[train.columns[3]]
@@ -19,7 +20,6 @@ def x_y_train_test_psm(data, test_size):
     y_test = test[test.columns[2]]
 
     return x_train, y_train, x_test, y_test
-
 
 
 def x_and_y_train_test(data, test_size, x_start=1, x_end=359, y=359):
@@ -33,6 +33,7 @@ def x_and_y_train_test(data, test_size, x_start=1, x_end=359, y=359):
 
     return x_train, y_train, x_test, y_test
 
+
 def x_and_y_train_test_sections(data_csv, test_size, x_start, x_end, y):
     train, test = split_plant_functional_types_sections(data_csv, test_size)
 
@@ -43,6 +44,7 @@ def x_and_y_train_test_sections(data_csv, test_size, x_start, x_end, y):
     y_test = test[test.columns[y]]
 
     return x_train, y_train, x_test, y_test
+
 
 # def dict_to_gdf(geo_data_frame, test_size):
 #     train_plant_functional_types, test_plant_functional_types = split_plant_functional_types(geo_data_frame, test_size)
@@ -86,20 +88,19 @@ def split_plant_functional_types_full(data_frame, test_size):
     train_agri_grasses, test_agri_grasses = train_test_split(
         data_frame[data_frame['PFT'].str.contains('agri_grasses')], test_size=test_size)
 
-
     train_frames = [train_shrub_sphagnum, train_water, train_grass_sphagnum, train_pool_bogbean, train_calluna,
                     train_rushes, train_long_grass, train_short_grass, train_brash, train_dead_grass_mix, train_bare, train_sitka_pine, train_agri_grasses]
     test_frames = [test_shrub_sphagnum, test_water, test_grass_sphagnum, test_pool_bogbean, test_calluna,
                    test_rushes, test_long_grass, test_short_grass, test_brash, test_dead_grass_mix, test_bare, test_sitka_pine, test_agri_grasses]
 
-    # train_frames = [train_shrub_sphagnum, train_water, train_grass_sphagnum, train_pool_bogbean, train_rushes, train_long_grass, train_short_grass, train_brash, train_dead_grass_mix, train_bare]
-    # test_frames = [test_shrub_sphagnum, test_water, test_grass_sphagnum, test_pool_bogbean,
-    #                test_rushes, test_long_grass, test_short_grass, test_brash, test_dead_grass_mix, test_bare]
+    # train_frames = [train_brash, train_bare, train_shrub_sphagnum, train_water, train_grass_sphagnum, train_pool_bogbean, train_rushes,
+    #                 train_long_grass, train_short_grass, train_dead_grass_mix]
+    # test_frames = [test_brash, test_bare, test_shrub_sphagnum, test_water, test_grass_sphagnum, test_pool_bogbean,
+    #                test_rushes, test_long_grass, test_short_grass, test_dead_grass_mix]
 
     train_plant_functional_types = pd.concat(train_frames)
     test_plant_functional_types = pd.concat(test_frames)
     return train_plant_functional_types, test_plant_functional_types
-
 
 
 def data_import(data_csv):
@@ -107,6 +108,5 @@ def data_import(data_csv):
     data['geometry'] = geopandas.GeoSeries.from_wkt(data['geometry'])
     data_gdf = geopandas.GeoDataFrame(data, geometry='geometry')
     return data_gdf
-
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

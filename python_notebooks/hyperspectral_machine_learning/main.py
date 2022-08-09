@@ -1,4 +1,5 @@
-from psm import logistic_regression, random_forest, df_for_similarity_measures_velocity_pfts
+from psm import logistic_regression, random_forest, df_for_similarity_measures_field_pfts, outputs
 
 if __name__ == "__main__":
-    df_for_similarity_measures_velocity_pfts('../../InSAR/joined_file_test.csv')
+    outputs('../../InSAR/joined_file_2006_only.csv', 0.3, 5)
+
