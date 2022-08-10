@@ -7,7 +7,7 @@ import scipy.stats
 import numpy as np
 import collections
 
-from train_test_data import data_import, x_y_train_test_psm
+from train_test_data import data_import, x_y_train_test_psm, x_y_train_test_psm_all_fields
 
 import statistics
 import pandas as pd
@@ -35,6 +35,9 @@ def outputs(joined_data_csv, field_name, test_size, max_depth, kernel='rbf', num
 
     predictor_train, predicted_train, predictor_test, predicted_test = train_test_on_pft(data_with_pft,
                                                                                          test_size=test_size)
+
+    # predictor_train, predicted_train, predictor_test, predicted_test = x_y_train_test_psm_all_fields(data_with_pft, test_size=test_size)
+
     logistic_regression_score = logistic_regression(data)
     rf_test_score = random_forest(data_with_pft, field_name, predictor_train, predicted_train, predictor_test, predicted_test,
                                   max_depth, output_directory, site_name=site_name,
@@ -47,7 +50,7 @@ def outputs(joined_data_csv, field_name, test_size, max_depth, kernel='rbf', num
                     site_name=site_name, cv=cv)
 
     full_data_kmc = data[data.columns[3]].values.reshape(-1, 1)
-    kmc_description = kmc(full_data_kmc, data_with_pft, num_clusters, output_directory, site_name)
+    kmc_description = kmc(full_data_kmc, field_name, data_with_pft, num_clusters, output_directory, site_name)
     # make results into dictionary
     return ('logistic regression: ' + str(logistic_regression_score)), (
             'random_forest_score, mean and sd: ' + str(rf_test_score)), (
@@ -82,6 +85,7 @@ def svm(data, field_name, predictor_train, predicted_train, predictor_test, pred
     svc.fit(predictor_train, predicted_train)
     svc_score = cross_val_score(svc, predictor_test, predicted_test, cv=cv)
     full_data_to_map = data[data.columns[3]].values.reshape(-1, 1)
+    # full_data_to_map = data[data.columns[3:7]]
     svc_pred_full = svc.predict(full_data_to_map)
     model_results = data[data.columns[0:4]]
     model_results = model_results.assign(svc_pred_full=svc_pred_full)
@@ -100,15 +104,16 @@ def decision_tree(data, field_name, predictor_train, predicted_train, predictor_
     clf.fit(predictor_train, predicted_train)
     clf_score = cross_val_score(clf, predictor_test, predicted_test, cv=cv)
     full_data_to_map = data[data.columns[3]].values.reshape(-1, 1)
+    # full_data_to_map = data[data.columns[3:7]]
     clf_pred_full = clf.predict(full_data_to_map)
     model_results = data[data.columns[0:4]]
     model_results = model_results.assign(clf_pred_full=clf_pred_full)
     formatted_date = date.today().strftime('%Y-%m-%d-%H%M%S')
     model = 'decision_tree'
     model_results.to_csv(
-        f"{output_directory}/{field_name}-{site_name}-{model}-{formatted_date}.csv")
+        f"{output_directory}/{field_name}-{max_depth}-{site_name}-{model}-{formatted_date}.csv")
     model_results.to_file(
-        f"{output_directory}/{field_name}-{site_name}-{model}-{formatted_date}.shp")
+        f"{output_directory}/{field_name}-{max_depth}-{site_name}-{model}-{formatted_date}.shp")
     return clf_score
 
 
@@ -118,6 +123,7 @@ def random_forest(data, field_name, predictor_train, predicted_train, predictor_
     clf.fit(predictor_train, predicted_train)
     clf_score = cross_val_score(clf, predictor_test, predicted_test, cv=cv)
     full_data_to_map = data[data.columns[3]].values.reshape(-1, 1)
+    # full_data_to_map = data[data.columns[3:7]]
     clf_pred_full = clf.predict(full_data_to_map)
     model_results = data[data.columns[0:4]]
     model_results = model_results.assign(clf_pred_full=clf_pred_full)
@@ -125,9 +131,9 @@ def random_forest(data, field_name, predictor_train, predicted_train, predictor_
     formatted_date = date.today().strftime('%Y-%m-%d-%H%M%S')
     model = 'random_forest'
     model_results.to_csv(
-        f"{output_directory}/{field_name}-{site_name}-{model}-{formatted_date}.csv")
+        f"{output_directory}/{field_name}-{max_depth}-{site_name}-{model}-{formatted_date}.csv")
     model_results.to_file(
-        f"{output_directory}/{field_name}-{site_name}-{model}-{formatted_date}.shp")
+        f"{output_directory}/{field_name}-{max_depth}-{site_name}-{model}-{formatted_date}.shp")
     return clf_score
 
 
@@ -146,8 +152,8 @@ def logistic_regression(data):
     return clf_score
 
 
-def similarity_measures_velocity_pfts(joined_data_csv):
-    dfs_dict = df_for_similarity_measures_field_pfts(joined_data_csv)
+def similarity_measures_velocity_pfts(joined_data_csv, field_name):
+    dfs_dict = df_for_similarity_measures_field_pfts(joined_data_csv, field_name)
     regressions = []
     # list_1 = comparision_df[0]
     # list_2 = comparision_df[1]
@@ -169,9 +175,9 @@ def similarity_measures_velocity_pfts(joined_data_csv):
     # return regressions
 
 
-def df_for_similarity_measures_field_pfts(joined_data_csv):
-    histogram_data, descriptive_df = data_descriptions(joined_data_csv)
-    pft_to_number_of_field = pft_to_number_field(joined_data_csv)
+def df_for_similarity_measures_field_pfts(joined_data_csv, field_name):
+    histogram_data, descriptive_df = data_descriptions(joined_data_csv, field_name)
+    pft_to_number_of_field = pft_to_number_field(joined_data_csv, field_name)
 
     df_dict = {}
 
@@ -201,8 +207,8 @@ def df_for_similarity_measures_field_pfts(joined_data_csv):
 #     for
 
 
-def pft_to_number_field(joined_data_csv):
-    histogram_data, descriptive_df = data_descriptions(joined_data_csv)
+def pft_to_number_field(joined_data_csv, field_name):
+    histogram_data, descriptive_df = data_descriptions(joined_data_csv, field_name)
     pft_to_number_field = {}
     for pft, values in histogram_data.items():
         field = []
@@ -219,7 +225,7 @@ def pft_to_number_field(joined_data_csv):
     return pft_to_number_field
 
 
-def data_descriptions(joined_data_csv, data_field_title='Velocity'):
+def data_descriptions(joined_data_csv, field_name='Velocity'):
     data = data_import(joined_data_csv)
     pfts = data['PFT'].unique()
     descriptive_stats = {}
@@ -227,7 +233,7 @@ def data_descriptions(joined_data_csv, data_field_title='Velocity'):
     histogram_data = {}
 
     for pft in pfts:
-        data_field = data.loc[data['PFT'] == pft, data_field_title].to_numpy('float').tolist()
+        data_field = data.loc[data['PFT'] == pft, field_name].to_numpy('float').tolist()
         mean = statistics.mean(data_field)
         variance = statistics.variance(data_field)
         stdev = statistics.stdev(data_field)
