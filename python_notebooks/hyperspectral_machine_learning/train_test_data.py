@@ -86,12 +86,12 @@ def split_plant_functional_types_full(data_frame, test_size):
         data_frame[data_frame['PFT'].str.contains('long_grass')], test_size=test_size)
     train_short_grass, test_short_grass = train_test_split(
         data_frame[data_frame['PFT'].str.contains('short_grass')], test_size=test_size)
-    # train_brash, test_brash = train_test_split(
-    #     data_frame[data_frame['PFT'].str.contains('brash')], test_size=test_size)
+    train_brash, test_brash = train_test_split(
+        data_frame[data_frame['PFT'].str.contains('brash')], test_size=test_size)
     train_dead_grass_mix, test_dead_grass_mix = train_test_split(
         data_frame[data_frame['PFT'].str.contains('dead_grass_mix')], test_size=test_size)
-    # train_bare, test_bare = train_test_split(
-    #     data_frame[data_frame['PFT'].str.contains('bare')], test_size=test_size)
+    train_bare, test_bare = train_test_split(
+        data_frame[data_frame['PFT'].str.contains('bare')], test_size=test_size)
     # train_sitka_pine, test_sitka_pine = train_test_split(
     #     data_frame[data_frame['PFT'].str.contains('sitka_pine')], test_size=test_size)
     # train_agri_grasses, test_agri_grasses = train_test_split(
@@ -102,9 +102,9 @@ def split_plant_functional_types_full(data_frame, test_size):
     # test_frames = [test_shrub_sphagnum, test_water, test_grass_sphagnum, test_pool_bogbean, test_calluna,
     #                test_rushes, test_long_grass, test_short_grass, test_brash, test_dead_grass_mix, test_bare, test_sitka_pine, test_agri_grasses]
 
-    train_frames = [train_shrub_sphagnum, train_water, train_grass_sphagnum, train_pool_bogbean, train_rushes,
+    train_frames = [train_bare, train_brash, train_shrub_sphagnum, train_water, train_grass_sphagnum, train_pool_bogbean, train_rushes,
                     train_long_grass, train_short_grass, train_dead_grass_mix]
-    test_frames = [test_shrub_sphagnum, test_water, test_grass_sphagnum, test_pool_bogbean,
+    test_frames = [test_bare, test_brash, test_shrub_sphagnum, test_water, test_grass_sphagnum, test_pool_bogbean,
                    test_rushes, test_long_grass, test_short_grass, test_dead_grass_mix]
 
     train_plant_functional_types = pd.concat(train_frames)

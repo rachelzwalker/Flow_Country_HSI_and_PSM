@@ -3,15 +3,12 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
 from sklearn.cluster import KMeans
-import scipy.stats
-import numpy as np
 import collections
 
 from train_test_data import data_import, x_y_train_test_psm, x_y_train_test_psm_all_fields
 
 import statistics
 import pandas as pd
-import geopandas
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
@@ -19,24 +16,22 @@ from datetime import date
 import random
 
 
-# def sub_section_outputs
-
 def outputs(joined_data_csv, field_name, test_size, max_depth, kernel='rbf', num_clusters=10, output_directory='outputs',
             site_name='restored_2006',
             random_state=42, cv=3):
     data_with_pft = data_import(joined_data_csv)
     data = data_with_pft.replace(
-        to_replace=['short_grass', 'dead_grass_mix', 'water', 'long_grass', 'shrub_sphagnum', 'pool_bogbean',
-                    'rushes', 'grass_sphagnum'],
-        value=[1, 2, 3, 4, 5, 6, 7, 8])
-    # to_replace=['short_grass', 'dead_grass_mix', 'water', 'long_grass', 'shrub_sphagnum', 'pool_bogbean', 'brash',
-    #             'rushes', 'bare', 'grass_sphagnum', 'sitka_pine', 'agri_grasses', 'calluna'],
-    # value=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+        # to_replace=['short_grass', 'dead_grass_mix', 'water', 'long_grass', 'shrub_sphagnum', 'pool_bogbean',
+        #             'rushes', 'grass_sphagnum', 'bare', 'brash'],
+        # value=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    to_replace=['short_grass', 'dead_grass_mix', 'water', 'long_grass', 'shrub_sphagnum', 'pool_bogbean', 'brash',
+                'rushes', 'bare', 'grass_sphagnum', 'sitka_pine', 'agri_grasses', 'calluna'],
+    value=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
 
-    predictor_train, predicted_train, predictor_test, predicted_test = train_test_on_pft(data_with_pft,
-                                                                                         test_size=test_size)
+    # predictor_train, predicted_train, predictor_test, predicted_test = train_test_on_pft(data_with_pft,
+    #                                                                                      test_size=test_size)
 
-    # predictor_train, predicted_train, predictor_test, predicted_test = x_y_train_test_psm_all_fields(data_with_pft, test_size=test_size)
+    predictor_train, predicted_train, predictor_test, predicted_test = x_y_train_test_psm_all_fields(data_with_pft, test_size=test_size)
 
     logistic_regression_score = logistic_regression(data)
     rf_test_score = random_forest(data_with_pft, field_name, predictor_train, predicted_train, predictor_test, predicted_test,
@@ -49,9 +44,9 @@ def outputs(joined_data_csv, field_name, test_size, max_depth, kernel='rbf', num
                     output_directory=output_directory,
                     site_name=site_name, cv=cv)
 
-    full_data_kmc = data[data.columns[3]].values.reshape(-1, 1)
+    full_data_kmc = data[data.columns[3].values.reshape(-1, 1)]
     kmc_description = kmc(full_data_kmc, field_name, data_with_pft, num_clusters, output_directory, site_name)
-    # make results into dictionary
+    # to imporve, make results into dictionary
     return ('logistic regression: ' + str(logistic_regression_score)), (
             'random_forest_score, mean and sd: ' + str(rf_test_score)), (
                    'decision_tree_score: ' + str(decision_tree_score)), ('svm: ' + str(svm_score)), (
@@ -137,12 +132,7 @@ def random_forest(data, field_name, predictor_train, predicted_train, predictor_
     return clf_score
 
 
-# issue is that x is a string
 def logistic_regression(data):
-    # data = data_import(data).replace(
-    #     to_replace=['short_grass', 'dead_grass_mix', 'water', 'long_grass', 'shrub_sphagnum', 'pool_bogbean', 'brash',
-    #                 'rushes', 'bare', 'grass_sphagnum', 'sitka_pine', 'agri_grasses', 'calluna'],
-    #     value=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
     predictor = data[data.columns[3]]
     predicted = data[data.columns[2]]
     predictor = predictor.values.reshape(-1, 1)
@@ -154,25 +144,11 @@ def logistic_regression(data):
 
 def similarity_measures_velocity_pfts(joined_data_csv, field_name):
     dfs_dict = df_for_similarity_measures_field_pfts(joined_data_csv, field_name)
-    regressions = []
-    # list_1 = comparision_df[0]
-    # list_2 = comparision_df[1]
-    # regression = scipy.stats.pearsonr(list_1, list_2)
-    # regressions.append(regression)
-
-    # for pft in pfts:
-    #     list_1 = comparision_df[pft]
-    #     list_2 = comparision_df[pft+1]
-    #     regression = scipy.stats.pearsonr(list_1, list_2)
-    #     regressions.append(regression)
-
     for df in dfs_dict.values():
         corr = df.corr()
         fig, ax = plt.subplots()
         sns.heatmap(corr, cmap="Blues", annot=True, ax=ax)
-        # regressions.append(heatmap)
 
-    # return regressions
 
 
 def df_for_similarity_measures_field_pfts(joined_data_csv, field_name):
@@ -198,15 +174,6 @@ def df_for_similarity_measures_field_pfts(joined_data_csv, field_name):
     return df_dict
 
 
-# def different_sized_dataframes(joined_data_csv):
-#     sorted_list_lengths = sorted_list(joined_data_csv)
-#     histogram_data, descriptive_df = data_descriptions(joined_data_csv)
-#     pfts = histogram_data.keys()
-#     df_dict = {}
-#
-#     for
-
-
 def pft_to_number_field(joined_data_csv, field_name):
     histogram_data, descriptive_df = data_descriptions(joined_data_csv, field_name)
     pft_to_number_field = {}
@@ -216,12 +183,7 @@ def pft_to_number_field(joined_data_csv, field_name):
             field.append(value)
         len_list = len(field)
         pft_to_number_field[pft] = len_list
-    # sorted_dictionary = collections.OrderedDict(sorted(pft_to_number_field.items()))
 
-    # pft_list_lengths_zipping = zip(pft, len_list)
-    # pft_list_lengths = list(pft_list_lengths_zipping)
-
-    # return type(sorted_dictionary) # type comes out as a collection rather than a dictionary
     return pft_to_number_field
 
 
