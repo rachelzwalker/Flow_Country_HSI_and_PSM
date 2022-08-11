@@ -27,9 +27,9 @@ def confusion_outputs(output_datasets, test_train_dataset, name, output_director
     matrix = users_accuracy_matrix(producers_matrix)
     matrix.to_csv(f"{output_directory}/{name}.csv")
 
-    return merged_dataset_for_confusion_matrix
+    return accuracy
 
-def users_accuracy_matrix_2006_only(producers_matrix):
+def users_accuracy_matrix_2006_full_fw(producers_matrix):
     column_label = 'Row_Total'
 
     users_accuracy_0 = producers_matrix.iloc[0, 0] / producers_matrix.loc['bare', column_label]
@@ -42,7 +42,32 @@ def users_accuracy_matrix_2006_only(producers_matrix):
     users_accuracy_7 = producers_matrix.iloc[7, 7] / producers_matrix.loc['rushes', column_label]
     users_accuracy_8 = producers_matrix.iloc[8, 8] / producers_matrix.loc['short_grass', column_label]
     users_accuracy_9 = producers_matrix.iloc[9, 9] / producers_matrix.loc['shrub_sphagnum', column_label]
-    users_accuracy_10 = producers_matrix.iloc[10, 10] / producers_matrix.loc['water', column_label]
+    users_accuracy_10 = producers_matrix.iloc[10, 11] / producers_matrix.loc['sitka_pine', column_label]
+    users_accuracy_11 = producers_matrix.iloc[10, 11] / producers_matrix.loc['water', column_label]
+
+    users_accuracy = [users_accuracy_0, users_accuracy_1,
+                      users_accuracy_2,
+                      users_accuracy_3,
+                      users_accuracy_4,
+                      users_accuracy_5, users_accuracy_6, users_accuracy_7, users_accuracy_8, users_accuracy_9,
+                      users_accuracy_10, users_accuracy_11, 'n/a', 'n/a']
+    producers_matrix.loc['users_accuracy'] = users_accuracy
+    return producers_matrix
+
+
+def users_accuracy_matrix_2006_only(producers_matrix):
+    column_label = 'Row_Total'
+
+    users_accuracy_0 = producers_matrix.iloc[0, 0] / producers_matrix.loc['bare', column_label]
+    users_accuracy_1 = producers_matrix.iloc[1, 1] / producers_matrix.loc['brash', column_label]
+    users_accuracy_2 = producers_matrix.iloc[2, 2] / producers_matrix.loc['dead_grass_mix', column_label]
+    users_accuracy_3 = producers_matrix.iloc[3, 3] / producers_matrix.loc['grass_sphagnum', column_label]
+    users_accuracy_4 = producers_matrix.iloc[4, 4] / producers_matrix.loc['long_grass', column_label]
+    users_accuracy_5 = producers_matrix.iloc[5, 5] / producers_matrix.loc['pool_bogbean', column_label]
+    users_accuracy_6 = producers_matrix.iloc[6, 6] / producers_matrix.loc['rushes', column_label]
+    users_accuracy_7 = producers_matrix.iloc[7, 7] / producers_matrix.loc['short_grass', column_label]
+    users_accuracy_8 = producers_matrix.iloc[8, 8] / producers_matrix.loc['shrub_sphagnum', column_label]
+    users_accuracy_9 = producers_matrix.iloc[9, 9] / producers_matrix.loc['water', column_label]
 
 
     users_accuracy = [users_accuracy_0, users_accuracy_1,
@@ -50,7 +75,7 @@ def users_accuracy_matrix_2006_only(producers_matrix):
                       users_accuracy_3,
                       users_accuracy_4,
                       users_accuracy_5, users_accuracy_6, users_accuracy_7, users_accuracy_8, users_accuracy_9,
-                      users_accuracy_10, 'n/a', 'n/a']
+                      'n/a', 'n/a']
     producers_matrix.loc['users_accuracy'] = users_accuracy
     return producers_matrix
 
@@ -80,6 +105,32 @@ def users_accuracy_matrix(producers_matrix):
     producers_matrix.loc['users_accuracy'] = users_accuracy
     return producers_matrix
 
+def producers_accuracy_matrix_2006_full_fw(df_confusion):
+    df_confusion.loc['Column_Total'] = df_confusion.sum(numeric_only=True, axis=0)
+    df_confusion.loc[:, 'Row_Total'] = df_confusion.sum(numeric_only=True, axis=1)
+    row_label = 'Column_Total'
+
+    producers_accuracy_0 = df_confusion.iloc[0, 0] / df_confusion.loc[row_label, 'bare']
+    producers_accuracy_1 = df_confusion.iloc[1, 1] / df_confusion.loc[row_label, 'brash']
+    producers_accuracy_2 = df_confusion.iloc[2, 2] / df_confusion.loc[row_label, 'calluna']
+    producers_accuracy_3 = df_confusion.iloc[3, 3] / df_confusion.loc[row_label, 'dead_grass_mix']
+    producers_accuracy_4 = df_confusion.iloc[4, 4] / df_confusion.loc[row_label, 'grass_sphagnum']
+    producers_accuracy_5 = df_confusion.iloc[5, 5] / df_confusion.loc[row_label, 'long_grass']
+    producers_accuracy_6 = df_confusion.iloc[6, 6] / df_confusion.loc[row_label, 'pool_bogbean']
+    producers_accuracy_7 = df_confusion.iloc[7, 7] / df_confusion.loc[row_label, 'rushes']
+    producers_accuracy_8 = df_confusion.iloc[8, 8] / df_confusion.loc[row_label, 'short_grass']
+    producers_accuracy_9 = df_confusion.iloc[9, 9] / df_confusion.loc[row_label, 'shrub_sphagnum']
+    producers_accuracy_10 = df_confusion.iloc[10, 10] / df_confusion.loc[row_label, 'sitka_pine']
+    producers_accuracy_11 = df_confusion.iloc[11, 11] / df_confusion.loc[row_label, 'water']
+
+    producers_accuracy = [producers_accuracy_0, producers_accuracy_1, producers_accuracy_2,
+                          producers_accuracy_3, producers_accuracy_4, producers_accuracy_5, producers_accuracy_6,
+                          producers_accuracy_7, producers_accuracy_8, producers_accuracy_9, producers_accuracy_10,
+                          producers_accuracy_11, 'n/a']
+
+    df_confusion.loc[:, 'producers_accuracy'] = producers_accuracy
+
+    return df_confusion
 
 def producers_accuracy_matrix_2006_only(df_confusion):
     df_confusion.loc['Column_Total'] = df_confusion.sum(numeric_only=True, axis=0)
@@ -90,20 +141,19 @@ def producers_accuracy_matrix_2006_only(df_confusion):
 
     producers_accuracy_0 = df_confusion.iloc[0, 0] / df_confusion.loc[row_label, 'bare']
     producers_accuracy_1 = df_confusion.iloc[1, 1] / df_confusion.loc[row_label, 'brash']
-    # producers_accuracy_2 = df_confusion.iloc[2, 2] / df_confusion.loc[row_label, 'calluna']
-    producers_accuracy_3 = df_confusion.iloc[3, 3] / df_confusion.loc[row_label, 'dead_grass_mix']
-    producers_accuracy_4 = df_confusion.iloc[4, 4] / df_confusion.loc[row_label, 'grass_sphagnum']
-    producers_accuracy_5 = df_confusion.iloc[5, 5] / df_confusion.loc[row_label, 'long_grass']
-    producers_accuracy_6 = df_confusion.iloc[6, 6] / df_confusion.loc[row_label, 'pool_bogbean']
-    producers_accuracy_7 = df_confusion.iloc[7, 7] / df_confusion.loc[row_label, 'rushes']
-    producers_accuracy_8 = df_confusion.iloc[8, 8] / df_confusion.loc[row_label, 'short_grass']
-    producers_accuracy_9 = df_confusion.iloc[9, 9] / df_confusion.loc[row_label, 'shrub_sphagnum']
-    producers_accuracy_10 = df_confusion.iloc[10, 10] / df_confusion.loc[row_label, 'water']
+    producers_accuracy_2 = df_confusion.iloc[2, 2] / df_confusion.loc[row_label, 'dead_grass_mix']
+    producers_accuracy_3 = df_confusion.iloc[3, 3] / df_confusion.loc[row_label, 'grass_sphagnum']
+    producers_accuracy_4 = df_confusion.iloc[4, 4] / df_confusion.loc[row_label, 'long_grass']
+    producers_accuracy_5 = df_confusion.iloc[5, 5] / df_confusion.loc[row_label, 'pool_bogbean']
+    producers_accuracy_6 = df_confusion.iloc[6, 6] / df_confusion.loc[row_label, 'rushes']
+    producers_accuracy_7 = df_confusion.iloc[7, 7] / df_confusion.loc[row_label, 'short_grass']
+    producers_accuracy_8 = df_confusion.iloc[8, 8] / df_confusion.loc[row_label, 'shrub_sphagnum']
+    producers_accuracy_9 = df_confusion.iloc[9, 9] / df_confusion.loc[row_label, 'water']
 
-    producers_accuracy = [producers_accuracy_0, producers_accuracy_1, 0,
+    producers_accuracy = [producers_accuracy_0, producers_accuracy_1, producers_accuracy_2,
                           producers_accuracy_3, producers_accuracy_4, producers_accuracy_5, producers_accuracy_6,
                           producers_accuracy_7, producers_accuracy_8, producers_accuracy_9,
-                          producers_accuracy_10, 'n/a']
+                          'n/a']
 
     df_confusion.loc[:, 'producers_accuracy'] = producers_accuracy
 
@@ -158,7 +208,7 @@ def merge_each_output_with_test_train(output_datasets, test_train_dataset):
 
     merged_on_geometry = pd.merge(imported_datasets_combined, reduced_train_test, on="geometry", how="right")
     merged_on_geometry = merged_on_geometry.rename(columns={"clf_pred_full": "Predicted PFT", "PFT": "Sample PFT"})
-    merged_on_geometry = merged_on_geometry.dropna()
+
     return merged_on_geometry
 
 
