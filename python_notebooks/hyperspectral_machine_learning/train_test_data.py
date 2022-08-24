@@ -78,8 +78,8 @@ def split_plant_functional_types_full(data_frame, test_size):
         data_frame[data_frame['PFT'].str.contains('grass_sphagnum')], test_size=test_size)
     train_pool_bogbean, test_pool_bogbean = train_test_split(
         data_frame[data_frame['PFT'].str.contains('pool_bogbean')], test_size=test_size)
-    # train_calluna, test_calluna = train_test_split(
-    #     data_frame[data_frame['PFT'].str.contains('calluna')], test_size=test_size)
+    train_calluna, test_calluna = train_test_split(
+        data_frame[data_frame['PFT'].str.contains('calluna')], test_size=test_size)
     train_rushes, test_rushes = train_test_split(
         data_frame[data_frame['PFT'].str.contains('rushes')], test_size=test_size)
     train_long_grass, test_long_grass = train_test_split(
@@ -92,20 +92,20 @@ def split_plant_functional_types_full(data_frame, test_size):
         data_frame[data_frame['PFT'].str.contains('dead_grass_mix')], test_size=test_size)
     train_bare, test_bare = train_test_split(
         data_frame[data_frame['PFT'].str.contains('bare')], test_size=test_size)
-    # train_sitka_pine, test_sitka_pine = train_test_split(
-    #     data_frame[data_frame['PFT'].str.contains('sitka_pine')], test_size=test_size)
-    # train_agri_grasses, test_agri_grasses = train_test_split(
-    #     data_frame[data_frame['PFT'].str.contains('agri_grasses')], test_size=test_size)
+    train_sitka_pine, test_sitka_pine = train_test_split(
+        data_frame[data_frame['PFT'].str.contains('sitka_pine')], test_size=test_size)
+    train_agri_grasses, test_agri_grasses = train_test_split(
+        data_frame[data_frame['PFT'].str.contains('agri_grasses')], test_size=test_size)
 
-    # train_frames = [train_shrub_sphagnum, train_water, train_grass_sphagnum, train_pool_bogbean, train_calluna,
-    #                 train_rushes, train_long_grass, train_short_grass, train_brash, train_dead_grass_mix, train_bare, train_sitka_pine, train_agri_grasses]
-    # test_frames = [test_shrub_sphagnum, test_water, test_grass_sphagnum, test_pool_bogbean, test_calluna,
-    #                test_rushes, test_long_grass, test_short_grass, test_brash, test_dead_grass_mix, test_bare, test_sitka_pine, test_agri_grasses]
+    train_frames = [train_shrub_sphagnum, train_water, train_grass_sphagnum, train_pool_bogbean, train_calluna,
+                    train_rushes, train_long_grass, train_short_grass, train_brash, train_dead_grass_mix, train_bare, train_sitka_pine, train_agri_grasses]
+    test_frames = [test_shrub_sphagnum, test_water, test_grass_sphagnum, test_pool_bogbean, test_calluna,
+                   test_rushes, test_long_grass, test_short_grass, test_brash, test_dead_grass_mix, test_bare, test_sitka_pine, test_agri_grasses]
 
-    train_frames = [train_bare, train_brash, train_shrub_sphagnum, train_water, train_grass_sphagnum, train_pool_bogbean, train_rushes,
-                    train_long_grass, train_short_grass, train_dead_grass_mix]
-    test_frames = [test_bare, test_brash, test_shrub_sphagnum, test_water, test_grass_sphagnum, test_pool_bogbean,
-                   test_rushes, test_long_grass, test_short_grass, test_dead_grass_mix]
+    # train_frames = [train_bare, train_brash, train_shrub_sphagnum, train_water, train_grass_sphagnum, train_pool_bogbean, train_rushes,
+    #                 train_long_grass, train_short_grass, train_dead_grass_mix]
+    # test_frames = [test_bare, test_brash, test_shrub_sphagnum, test_water, test_grass_sphagnum, test_pool_bogbean,
+    #                test_rushes, test_long_grass, test_short_grass, test_dead_grass_mix]
 
     train_plant_functional_types = pd.concat(train_frames)
     test_plant_functional_types = pd.concat(test_frames)
