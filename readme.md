@@ -28,13 +28,13 @@ This notebook iterates through the pre-processed hyperspectral data to create tw
 
 ### k-means_clustering.ipynb
 This notebook takes hyperspectral and Peat Surface Motion (PSM) data to be clustered with options to change the bands used to focus on specific parts of the spectrum - you would need to check if these bands match your data (visible: 400-700 nm, red-edge: 680-750 nm, NIR: 700-1300 nm and SWIR: 1300-2500 nm).
-The k value can be changed easily to determine the number of clusters required.
+The `k` value can be changed easily to determine the number of clusters required.
 A cluster map and csv are outputted.
 
 ### McNemar_calculation.ipynb
 This notebook takes two confusion matrices to test for similarity.
 The comparison returns the true positive (TP), tru negative (TN), false positive (FP) and false negative (FN) scores along with a z score.
-If z is greater than 3.481, then it is statistically significant diffierent at 0.05 level (1 degree of freedom chi2 table). i.e. the classifiers have statsitically significane different outcomes.
+If z is greater than **3.481**, then it is statistically significant diffierent at 0.05 level (1 degree of freedom chi2 table). i.e. the classifiers have statsitically significane different outcomes.
 The number of columns will need to be taken into account, with changes made to the code as described in the notebook.
 
 ### Outputs.ipynb
@@ -63,12 +63,3 @@ The outputs include a shape file and csv of the location of each pixel and the p
 
 ### vector_creation.ipynb
 This notebook is used to convert a raster dataset with many attributes to a vector dataset (outputted as a shapefile to view in GIS and as a csv for further analysis).
-
-
-/ PyCharm readMe - blurb for each, no need to add markdown at top of sheets. In that readme mention requirements
-
-To get started you must install the requirements via
-```
-pip install -r requirements.txt
-```
-Use at least Python 3
